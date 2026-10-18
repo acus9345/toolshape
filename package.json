@@ -1,0 +1,65 @@
+{
+  "name": "toolshape",
+  "version": "0.1.0",
+  "description": "Convert LLM tool definitions between OpenAI, Anthropic, Gemini and MCP formats, including the JSON Schema fixes each one needs (strict mode, Gemini's schema subset, tool names). Zero dependencies.",
+  "keywords": [
+    "llm",
+    "tools",
+    "tool-calling",
+    "function-calling",
+    "openai",
+    "anthropic",
+    "claude",
+    "gemini",
+    "mcp",
+    "model-context-protocol",
+    "json-schema",
+    "convert"
+  ],
+  "homepage": "https://github.com/acus9345/toolshape#readme",
+  "bugs": {
+    "url": "https://github.com/acus9345/toolshape/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acus9345/toolshape.git"
+  },
+  "license": "MIT",
+  "author": "acus9345 <acus9345@gmail.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "toolshape": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "prelint": "npm run build",
+    "lint": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
+    "test": "node --test \"test/*.test.ts\"",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2"
+  }
+}
