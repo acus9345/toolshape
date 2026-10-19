@@ -1,7 +1,7 @@
 {
   "name": "toolshape",
-  "version": "0.1.0",
-  "description": "Convert LLM tool definitions between OpenAI, Anthropic, Gemini and MCP formats, including the JSON Schema fixes each one needs (strict mode, Gemini's schema subset, tool names). Zero dependencies.",
+  "version": "0.2.0",
+  "description": "Convert LLM tool definitions, tool calls and tool results between OpenAI, Anthropic, Gemini and MCP formats, including the JSON Schema fixes each one needs (strict mode, Gemini's schema subset, tool names). Zero dependencies.",
   "keywords": [
     "llm",
     "tools",
@@ -14,7 +14,9 @@
     "mcp",
     "model-context-protocol",
     "json-schema",
-    "convert"
+    "convert",
+    "tool-calls",
+    "tool-results"
   ],
   "homepage": "https://github.com/acus9345/toolshape#readme",
   "bugs": {

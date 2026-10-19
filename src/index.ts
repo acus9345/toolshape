@@ -10,6 +10,22 @@ import { fromGeminiSchema, inlineRefs, toGeminiSchema, toStrictSchema, type Json
 
 export { fromGeminiSchema, inlineRefs, toGeminiSchema, toStrictSchema };
 export type { JsonSchema };
+export { convertToolCall, fromStrictArgs, isToolCall, readToolCall, readToolCalls, toolResult } from "./calls.js";
+export type {
+  AnthropicToolCall,
+  AnthropicToolResult,
+  GeminiToolCall,
+  GeminiToolResult,
+  MCPToolCall,
+  MCPToolResult,
+  OpenAIResponsesToolCall,
+  OpenAIResponsesToolResult,
+  OpenAIToolCall,
+  OpenAIToolResult,
+  ReadCallOptions,
+  ToolCall,
+  ToolResultOptions,
+} from "./calls.js";
 
 /**
  * - `openai`: Chat Completions, `{ type: "function", function: { name, description, parameters, strict } }`

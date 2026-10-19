@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here. This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-10-19
+
+### Added
+
+- `readToolCalls()` and `readToolCall()` read tool calls from OpenAI chat completions, Responses API output, Anthropic messages, Gemini responses and MCP `tools/call` requests into one `{ id, name, arguments }` form.
+- With `{ renamed, tools }`, calls get their original tool names back, and `fromStrictArgs()` removes the `null`s OpenAI strict mode forces into optional arguments.
+- `convertToolCall()` writes a call in another provider's format, for replaying conversations.
+- `toolResult()` wraps a tool's result as an OpenAI `tool` message, a Responses `function_call_output`, an Anthropic `tool_result`, a Gemini `functionResponse` or an MCP `CallToolResult`, including errors.
+- `isToolCall()`.
+
 ## [0.1.0] - 2026-10-18
 
 ### Added
@@ -13,4 +23,5 @@ All notable changes to this project are documented here. This project follows [S
 - Tool names fixed per target's rules.
 - `toolshape` CLI.
 
+[0.2.0]: https://github.com/acus9345/toolshape/releases/tag/v0.2.0
 [0.1.0]: https://github.com/acus9345/toolshape/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 # toolshape
 
-Convert LLM tool definitions between OpenAI, Anthropic, Gemini and MCP formats. Zero dependencies.
+Convert LLM tool definitions, tool calls and tool results between OpenAI, Anthropic, Gemini and MCP formats. Zero dependencies.
 
 [![npm](https://img.shields.io/npm/v/toolshape)](https://www.npmjs.com/package/toolshape)
 [![CI](https://github.com/acus9345/toolshape/actions/workflows/ci.yml/badge.svg)](https://github.com/acus9345/toolshape/actions/workflows/ci.yml)
@@ -12,6 +12,7 @@ Every provider wants the same tool described a little differently, and the diffe
 - **Gemini schema fixes:** `$ref`s inlined, `["string", "null"]` becomes `nullable`, `const` and `oneOf` rewritten, unsupported formats and keywords dropped with a warning.
 - **OpenAI strict mode:** `additionalProperties: false` everywhere, all properties required, optional ones made nullable.
 - **Tool names:** invalid names are fixed per target and kept unique, with a map back to the originals for routing tool calls.
+- **Tool calls and results:** read the calls in any provider's response, get the original names and arguments back, and wrap your tool's result the way each provider expects.
 - Includes a CLI.
 
 ## Install
@@ -71,6 +72,55 @@ const mcpName = renamed[call.function.name] ?? call.function.name;
 ```
 
 For Gemini, `tools` is `[{ functionDeclarations: [...] }]`, ready to pass as `config.tools`.
+
+## Tool calls and results
+
+Converting the definitions is only half the job. The model's tool calls also come back in the provider's own format, under the name you registered with that provider. In strict mode they also carry a `null` for every argument the model left out. `readToolCalls` handles all three:
+
+```js
+import { convertAll, readToolCalls, toolResult } from "toolshape";
+
+const { tools: mcpTools } = await mcpClient.listTools();
+const { tools, renamed } = convertAll(mcpTools, "openai", { strict: true });
+
+const completion = await openai.chat.completions.create({ model: "gpt-5", messages, tools });
+messages.push(completion.choices[0].message);
+
+for (const call of readToolCalls(completion, { renamed, tools: mcpTools })) {
+  // call.name is the MCP name again ("github.search", not "github_search"), and the nulls
+  // strict mode forced into optional arguments are gone.
+  const result = await mcpClient.callTool({ name: call.name, arguments: call.arguments });
+  messages.push(toolResult(result.structuredContent ?? result.content, "openai", { id: call.id }));
+}
+```
+
+`readToolCalls` accepts any of these:
+- an OpenAI chat completion or assistant message
+- a Responses API response
+- an Anthropic message
+- a Gemini response
+- a list of calls
+
+It skips text and reasoning. Every call comes back as `{ id?, name, arguments }`, with the arguments parsed.
+
+| Function | Returns |
+| --- | --- |
+| `readToolCalls(response, options?)` | Every tool call in a response, as `{ id?, name, arguments }`. |
+| `readToolCall(call, options?)` | One call, in any format. |
+| `convertToolCall(call, to)` | The call in another format, for replaying a conversation to a different provider. OpenAI and Anthropic get a generated id if the call had none. `mcp` gives `tools/call` params. |
+| `toolResult(result, to, { id?, name?, isError? })` | An OpenAI `tool` message, a Responses `function_call_output`, an Anthropic `tool_result` block, a Gemini `functionResponse` part or an MCP `CallToolResult`. Strings are sent as is, anything else as JSON. |
+| `fromStrictArgs(args, originalSchema)` | The arguments without the `null`s strict mode added, at every depth. A `null` the original schema allows is kept. |
+| `isToolCall(value)` | Whether a value looks like a tool call. |
+
+`readToolCalls` takes two options:
+- `renamed` (from `convertAll`) maps names back.
+- `tools` (the original definitions, in any format) turns on the strict-mode cleanup.
+
+`toolResult` needs `id` for OpenAI, Responses and Anthropic, and `name` for Gemini. With `isError`:
+- Anthropic gets `is_error`.
+- MCP gets `isError`.
+- Gemini gets `{ error }`.
+- OpenAI gets an `Error: ` prefix.
 
 ## API
 
